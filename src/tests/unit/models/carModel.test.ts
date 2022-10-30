@@ -2,48 +2,59 @@ import * as sinon from 'sinon';
 import chai from 'chai';
 import CarModel from '../../../models/carModel';
 import { Model } from 'mongoose';
-import { carMock, carMockResolves, carUpdate, carUpdateResolves } from '../../mocks/carMocks';
+import mongoose from 'mongoose';
+import { carMocksId, carMocks, carUpdate, carUpdateId } from '../../mocks/carMocks';
+import { ErrorTypes } from '../../../errors/catalog';
 const { expect } = chai;
 
-describe('camada model', () => {
 
-const carModel = new CarModel();
 
+describe('Car Model', () => {
+  const carsModel = new CarModel();
   before(async () => {
-    sinon.stub(Model, 'create').resolves(carMockResolves);
-    sinon.stub(Model, 'find').resolves([carMockResolves]);
-    sinon.stub(Model, 'findOne').resolves(carMockResolves);
-    sinon.stub(Model, 'findByIdAndUpdate').resolves(carUpdateResolves);
-    sinon.stub(Model, 'findByIdAndDelete').resolves(carMockResolves);
+    sinon.stub(Model, 'create').resolves(carMocksId);
+    sinon.stub(Model, 'find').resolves([carMocksId]);
+    sinon.stub(Model, 'findOne').resolves(carMocksId);
+    sinon.stub(Model, 'findByIdAndUpdate').resolves(carUpdateId);
+    sinon.stub(Model, 'findOneAndDelete').resolves(carMocksId);
   });
 
   after(()=>{
     sinon.restore();
-  })
-
-  it('Se cria um novo carro', async () => {
-    const response = await carModel.create(carMock);
-    expect(response).to.be.deep.equal(carMockResolves);
   });
 
-  it('Se retorna uma lista de carros', async () => {
-    const response = await carModel.read();
-    expect(response[0]).to.be.deep.equal(carMockResolves);
+  describe('Create', () => {
+    it('Caso de sucesso', async () => {
+      const response = await carsModel.create(carMocks);
+      expect(response).to.be.deep.equal(carMocksId);
+    });
   });
 
-  it('Se retorna um carro pelo id', async () => {
-    const response = await carModel.readOne('242114587');
-    expect(response).to.be.deep.equal(carMockResolves);
+  describe('Read', () => {
+    it('Busca todos os carros', async () => {
+      const response  = await carsModel.read();
+      expect(response ).to.be.deep.equal([carMocksId]);
+    });
+    it('Se busca pelo id', async () => {
+      const response  = await carsModel.readOne(carMocksId._id);
+      expect(response ).to.be.deep.equal(carMocksId);
+    });
+  
   });
 
-  it('Se a lista de carros atualiza', async () => {
-    const response = await carModel.update('242114588', carUpdate);
-    expect(response).to.be.deep.equal(carUpdateResolves);
+  describe('Update', () => {
+    it('Se atuaçiza o carro', async () => {
+      const response  = await carsModel.update(carMocksId._id, carUpdate);
+      expect(response ).to.be.deep.equal(response );
+    });
+ 
   });
 
-  it('Se deleta um carro', async () => {
-    const response = await carModel.delete('242114587');
-    expect(response).to.be.deep.equal(carMockResolves);
+  describe('Delete', () => {
+    it('Se apaga um carro', async () => {
+      const response  = await carsModel.delete(carMocksId._id);
+      expect(response ).to.be.deep.equal(carMocksId);
+    });
+  
   });
-
 });
